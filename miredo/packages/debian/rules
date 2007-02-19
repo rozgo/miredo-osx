@@ -1,0 +1,58 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/utils.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+
+DEB_AC_AUX_DIR = $(DEB_SRCDIR)/admin
+DEB_CONFIGURE_SCRIPT_ENV += LDFLAGS="-Wl,-z,defs -Wl,--as-needed"
+DEB_CONFIGURE_EXTRA_FLAGS =	--enable-static --disable-shared \
+				--disable-binreloc --enable-miredo-user \
+				--with-Judy
+ifeq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+DEB_CONFIGURE_EXTRA_FLAGS +=	--disable-assert
+endif
+
+# Uho, problem on hppa and m68k pbuilder
+#ifeq (,$(filter $(DEB_HOST_ARCH_CPU),hppa m68k))
+# testsuite is native, would fail if cross-compiling
+#ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+#DEB_MAKE_CHECK_TARGET = check
+#endif
+#endif
+
+DEB_DH_INSTALL_SOURCEDIR = $(DEB_SRCDIR)/debian/tmp
+DEB_UPDATE_RCD_PARAMS_miredo = "start 43 S ."
+#DEB_UPDATE_RCD_PARAMS_isatapd = "start 42 S ."
+
+install/miredo::
+	-rm -Rf debian/tmp/usr/include
+	-rm -Rf debian/tmp/usr/lib
+	-find debian/tmp/ -name 'isatap*' -delete
+
+install/miredo-server::
+	mkdir -p debian/tmp/usr/share/doc/miredo-server/examples/
+	mv debian/tmp/usr/share/doc/miredo/examples/miredo-server* \
+		debian/tmp/usr/share/doc/miredo-server/examples/
+
+#install/isatapd::
+#      mkdir -p debian/tmp/usr/share/doc/isatapd/examples/
+#      mv debian/tmp/usr/share/doc/miredo/examples/isatapd* \
+#              debian/tmp/usr/share/doc/isatapd/examples/
+#binary-install/miredo::
+#	dh_installinit --name=isatapd \
+#		--update-rcd-params="$(DEB_UPDATE_RCD_PARAMS_isatapd)"
+
+binary-post-install/miredo::
+	cp -f debian/miredo.conf debian/miredo/etc/
+
+binary-post-install/miredo-server::
+	cp -f debian/miredo-server.conf debian/miredo-server/etc/
+
+# Only used in development build:
+binary-post-install/miredo-dbg::
+	rm -Rf debian/miredo-dbg/usr/share/doc/miredo-dbg
+	cd debian/miredo-dbg/usr/share/doc && ln -sf miredo miredo-dbg
+
+common-binary-post-install-arch:: list-missing
+

@@ -1,0 +1,8 @@
+# See uscan(1) for format
+
+# Compulsory line, this is a version 3 file
+version=3
+
+# <Webpage URL> <string match>
+http://www.remlab.net/files/miredo/archive/miredo-(.*).tar.bz2
+

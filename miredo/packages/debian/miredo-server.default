@@ -1,0 +1,13 @@
+# Defaults for miredo-server initscript
+# sourced by /etc/init.d/miredo-server
+# installed at /etc/default/miredo-server by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+# Uncomment to start miredo-server on system startup
+#START_MIREDO_SERVER=true
+
+# Additional options that are passed to the Daemon.
+DAEMON_ARGS="-u miredo-server"

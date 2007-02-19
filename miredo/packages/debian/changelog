@@ -1,0 +1,30 @@
+miredo (1.0.4-2) UNRELEASED; urgency=low
+
+  * Disable testsuite everywhere because it may fail on busy systems.
+  * Provide default configuration for miredo-server.
+
+ -- Rémi Denis-Courmont <rdenis@simphalempin.com>  Tue, 21 Nov 2006 14:49:00 +0100
+
+miredo (1.0.4-1) unstable; urgency=medium
+
+  * New upstream release fixes packet storm (closes: #391611).
+  * Fix exclusion of libcap-dev from Build-Depends on kFreeBSD.
+  * Disable testsuite on hppa.
+  * Use Debian-specific name for default Teredo server.
+
+ -- Rémi Denis-Courmont <rdenis@simphalempin.com>  Sun,  8 Oct 2006 13:12:00 +0300
+
+miredo (1.0.3-1) unstable; urgency=low
+
+  * New upstream version (closes: #390846).
+  * Create /dev/net/tun (as per Debian Policy Manual §10.6).
+  * Make sure /dev/net/tun is present before starting miredo.
+  * Start miredo by default (closes: #390771).
+
+ -- Rémi Denis-Courmont <rdenis@simphalempin.com>  Wed,  4 Oct 2006 22:40:50 +0300
+
+miredo (1.0.2-1) unstable; urgency=low
+
+  * Initial Debian package (closes: #338128).
+
+ -- Rémi Denis-Courmont <rdenis@simphalempin.com>  Tue, 22 Aug 2006 18:07:47 +0300

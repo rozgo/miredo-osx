@@ -1,0 +1,63 @@
+ToDo list:
+===========
+$Id: TODO 1684 2006-08-14 18:14:51Z remi $
+
+This task list is only indicative; in particular priorities are typically
+not quite respected and often modified. It might not be fully comprehensive.
+If you have an idea, please submit it to the miredo-devel mailing list.
+
+(!) must be done before next release
+(*) must be done before stable release
+( ) should probably be done someday if one finds time and interest
+(?) should be evaluated for usefulness and/or feasibility first
+(H) should be done, but a capable volunteer is required
+
+Important features & fixes:
+----------------------------
+(*) do something in case of DoS against the peers list
+( ) fixed TODOs and FIXMEs in source code
+(*) local Teredo discovery
+
+Not so important features:
+---------------------------
+(*) some statistics
+(H) other localizations
+( ) support for UPnP IGD to open an UDP port on supporting NATs
+(?) “automatic sunset” / “exit strategy”
+
+Conformance:
+-------------
+(!) limit sending of bubbles (not completed yet)
+(!) send unreachable in response when dropping previously queued packets
+
+Security:
+----------
+(?) full secure qualification support with user ID
+
+Extension:
+-----------
+(?) support full symmetric NAT traversal
+(?) customizable IPv4 ACLs, e.g. allow custom internal Teredo
+    with private IPv4 addresses
+
+Portability:
+-------------
+(H) big-endianess compatibility and regression tests
+(H) byte alignement tests on problematic platforms (not i386)
+(H) Solaris: libtun6 support
+(H) Solaris: tests & fixes
+(H) FreeBSD kernel support fix (PR: kern/100080)
+(H) NetBSD 4 kernel support fix (same problem as FreeBSD)
+(H) DragonFly kernel support fix
+(H) OpenBSD kernel support correctness check
+(*) BSD: setsockopt SO_REUSEPORT if/where appropriate
+
+Documentation & support:
+-------------------------
+( ) custom INSTALL file
+( ) RPM packaging
+
+Re-usability:
+--------------
+( ) avoid syslog() in libtun6
+( ) avoid syslog() in libteredo

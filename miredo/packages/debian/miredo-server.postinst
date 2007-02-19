@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+  configure)
+    if ! getent passwd miredo-server >/dev/null; then
+      adduser --quiet --system --home /var/run/miredo-server --no-create-home miredo-server
+    fi
+  ;;
+esac
+
+#DEBHELPER#
+
