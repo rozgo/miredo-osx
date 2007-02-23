@@ -1,5 +1,7 @@
 
 
+TARNAME=miredo-osx-prerelease1
+
 ##### Path Variables
 PREFIX=/usr
 SYSCONF=/etc
@@ -38,7 +40,8 @@ JUDY_BUILD_X86_DIR=$(BUILD_DIR)/judy_build_x86
 JUDY_BUILD_PPC_DIR=$(BUILD_DIR)/judy_build_ppc
 JUDY_OUT_X86_DIR=$(BUILD_DIR)/judy_out_x86
 JUDY_OUT_PPC_DIR=$(BUILD_DIR)/judy_out_ppc
-JUDY_CONFIG_FLAGS=""
+JUDY_CONFIG_FLAGS+="--disable-shared"
+JUDY_CONFIG_FLAGS+="--enable-static"
 
 ## Uninstaller
 UNINST_SCRIPT_DIR=/Applications/Utilities
@@ -68,26 +71,30 @@ XCODEBUILD=/usr/bin/xcodebuild
 
 .PHONY: all miredo package clean mrproper tuntap libjudy uninst-script default pref-pane
 
-default: tuntap miredo pref-pane
+default: package
 
-all: tuntap miredo pref-pane uninst-script package
+all: tuntap miredo uninst-script package
 
 uninst-script: $(OUT_DIR)$(UNINST_SCRIPT)
 
-$(OUT_DIR)$(UNINST_SCRIPT): miredo tuntap pref-pane
+$(OUT_DIR)$(UNINST_SCRIPT): miredo tuntap 
 	$(RMKDIR) $(OUT_DIR)$(UNINST_SCRIPT_DIR)
 	echo "#!/bin/sh" > $(OUT_DIR)$(UNINST_SCRIPT)
 	echo "cd /" >> $(OUT_DIR)$(UNINST_SCRIPT)
 	echo "sudo launchctl unload /Library/LaunchDaemons/miredo.plist" >> $(OUT_DIR)$(UNINST_SCRIPT)
+	echo "sudo killall -9 miredo" >> $(OUT_DIR)$(UNINST_SCRIPT)
+	echo "sudo /Library/StartupItems/tun/tun stop" >> $(OUT_DIR)$(UNINST_SCRIPT)
+	echo "sudo /Library/StartupItems/tap/tap stop" >> $(OUT_DIR)$(UNINST_SCRIPT)
 	for FILE in `cd $(OUT_DIR) ; find . ` ; do { \
 		( cd $(OUT_DIR) && [ -d $$FILE ] ) && continue ; \
-		echo "sudo rm $$FILE" >> $(OUT_DIR)$(UNINST_SCRIPT) ; \
+		echo "sudo rm $$FILE" | grep -v .svn >> $(OUT_DIR)$(UNINST_SCRIPT) ; \
 	} ; done ;
+	echo "sudo rm -fr /Library/StartupItems/tun" >> $(OUT_DIR)$(UNINST_SCRIPT)
+	echo "sudo rm -fr /Library/StartupItems/tap" >> $(OUT_DIR)$(UNINST_SCRIPT)
+	echo "sudo rm -fr /Library/Extensions/tap.kext" >> $(OUT_DIR)$(UNINST_SCRIPT)
+	echo "sudo rm -fr /Library/Extensions/tun.kext" >> $(OUT_DIR)$(UNINST_SCRIPT)
 	echo "sudo rm $(UNINST_SCRIPT)" >> $(OUT_DIR)$(UNINST_SCRIPT)
 	chmod +x $(OUT_DIR)$(UNINST_SCRIPT)
-
-#miredo: $(MIREDO_DIR)/configure libjudy
-#	./Make_universal
 
 tuntap:
 	$(MAKE) -C $(TUNTAP_DIR) tap.kext tun.kext
@@ -99,10 +106,6 @@ tuntap:
 	$(CP) -fr $(TUNTAP_DIR)/startup_item/tap $(OUT_DIR)/Library/StartupItems
 	$(CP) -fr $(TUNTAP_DIR)/startup_item/tun $(OUT_DIR)/Library/StartupItems
 
-package: miredo.pkg
-
-miredo.pkg: tuntap miredo pref-pane uninst-script
-	$(PACKAGEMAKER) -build -p $@ -proj miredo.pmproj 
 
 
 
@@ -155,6 +158,8 @@ $(JUDY_SRC_DIR)/configure: $(JUDY_SRC_DIR)/configure.ac
 	make -C $(JUDY_SRC_DIR)
 	make -C $(JUDY_SRC_DIR) distclean
 
+libjudy-bootstrap: $(JUDY_SRC_DIR)/configure
+
 libjudy: $(JUDY_OUT_X86_DIR)/lib/libJudy.a $(JUDY_OUT_PPC_DIR)/lib/libJudy.a
 
 libjudy-x86-conf: $(JUDY_BUILD_X86_DIR)/config.status
@@ -200,12 +205,26 @@ $(MIREDO_PREF_OUT_DIR)/Miredo.prefPane: $(MIREDO_PREF_SRC_DIR)/build/Release/Mir
 
 
 
+package: zip tarball
 
+$(TARNAME).pkg: tuntap miredo  uninst-script
+	$(PACKAGEMAKER) -build -p $@ -proj miredo.pmproj 
 
+$(TARNAME).pkg.tar.gz: $(TARNAME).pkg
+	tar cvzf $(TARNAME).pkg.tar.gz $(TARNAME).pkg
+
+$(TARNAME).pkg.zip: $(TARNAME).pkg
+	zip -r $(TARNAME).pkg.zip $(TARNAME).pkg
+
+zip: $(TARNAME).pkg.zip
+
+tarball: $(TARNAME).pkg.tar.gz
 	
 clean:
 	$(RMDIR) $(BUILD_DIR)
-	$(RMDIR) miredo.pkg
+	$(RMDIR) $(TARNAME).pkg
+	$(RM) $(TARNAME).pkg.tar.gz
+	$(RM) $(TARNAME).pkg.zip
 	$(MAKE) -C $(TUNTAP_DIR) clean
 
 mrproper: clean
